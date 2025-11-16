@@ -21,17 +21,17 @@ export const createRoom = (roomDTO: CreateRoomDTO) => {
 
     const player = new Player(user.name, roomDTO.userID)
 
-    playerOrm.save(player)
+    const playerId = playerOrm.save(player)
 
     const room = new Room(roomDTO.userID)
 
     roomOrm.save(room)
 
-    const game = new Game(player.id!, roomDTO.rules, room.id)
+    const game = new Game(playerId, roomDTO.rules, room.id)
 
     gameOrm.save(game)
 
-    console.log(roomDTO.userID, room.id)
+    console.log(roomDTO.userID, room.id, game.playersId)
 
     return room.id
 

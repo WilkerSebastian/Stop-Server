@@ -17,21 +17,31 @@ export const joinRoom = (dto: JoinRoomDTO) => {
 
     const room = roomOrm.getByID(dto.roomID)
 
-    let player = playerOrm.getByUserID(dto.userID)
+    const game = gameOrm.getByRoomId(dto.roomID)
 
-    if (!player) {
+    let player: Player
 
+    try {
+     
+        player = playerOrm.getByUserID(dto.userID)
+
+    } catch (error) {
+
+        console.log(`[joinRoom]: não foi achado player com userID de ${dto.userID}, fazendo procedimento de criar player`);
+        
         const user = userOrm.getByID(dto.userID)
 
         player = new Player(user.name, user.id)
 
         player.id = playerOrm.save(player)
 
+        game.playersId.push(player.id)
+
+        gameOrm.save(game)
+
     }
 
     const identifier = player.id!
-
-    const game = gameOrm.getByRoomId(dto.roomID)
 
     const players = gameOrm.getAllPlayersByRoomID(dto.roomID)
 
