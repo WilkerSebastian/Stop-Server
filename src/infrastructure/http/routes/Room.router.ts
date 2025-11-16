@@ -6,4 +6,6 @@ const roomRouter = Router()
 
 roomRouter.post("/create", authMiddleware, roomController.createRoom)
 
+roomRouter.get("/list/public", authMiddleware, roomController.listAllPublicRoom)
+
 export { roomRouter }

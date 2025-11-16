@@ -18,7 +18,6 @@ export interface CreateRoomDTO {
     userID: string
     password?: string
     rules: GameRules
-    isPublic: boolean
 }
 
 export interface GameInitDTO { 
@@ -28,3 +27,8 @@ export interface GameInitDTO {
     }[],  
     turn: number 
 }
+
+export interface AllRoomPublic {
+    id: string
+    size: number
+}[]

@@ -45,4 +45,21 @@ export class RoomRepository implements IRoomRepository {
 
     }
 
+    findAllPublic(): Room[] {
+        
+        const rooms: Room[] = []
+
+        for (const [_, r] of RoomRepository.data) 
+            if (r.isPublic) {
+
+                rooms.push(r)
+
+                break
+
+            }
+
+        return rooms
+
+    }
+
 }
