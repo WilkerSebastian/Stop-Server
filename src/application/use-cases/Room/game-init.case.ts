@@ -1,0 +1,53 @@
+import { GameInitDTO, RoomDTO } from "@/application/dto/room.dto";
+import { Card } from "@/domain/entities/Card";
+import { GameRepository } from "@/infrastructure/database/Memory/repositories/Game.repository";
+
+export const gameInit = (dto: RoomDTO) => {
+
+    const gameOrm = new GameRepository()
+
+    const game = gameOrm.getByRoomId(dto.roomID)
+
+    game.gameRunnig = true;
+
+    game.stack = createDeck();
+    
+    const players = gameOrm.getAllPlayersByRoomID(dto.roomID)
+
+    let playersCards: { id: number, cards: {rank: number, suit: number}[] }[] = []
+
+    for(let i = 0; i < players.length; i++) {
+
+        for(let j = 0; j < game.rules.get("numCartas")!; j++) 
+            players[i].hand.push(game.stack.pop()!)
+
+        playersCards.push({
+            id: players[i].id!,
+            cards: players[i].hand
+        })
+
+    }
+
+    game.turn = 0
+
+    console.log(game.playersId)
+    console.log(game.roomId, "começou")
+
+    return {
+        playersCards: playersCards,
+        turn: game.turn
+    } as GameInitDTO
+
+}
+
+const createDeck = () => {
+
+    let deck: Card[] = [];
+
+    for(let i = 0; i < 4; i++)
+        for(let j = 1; j <= 13; j++)
+            deck.push(new Card(j, i));
+
+    return deck
+
+}

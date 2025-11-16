@@ -1,15 +1,37 @@
+import { CreateRoomDTO } from "@/application/dto/room.dto"
 import { Room } from "@/domain/aggregates/Room"
+import { Game } from "@/domain/entities/Game"
+import { Player } from "@/domain/entities/Player"
+import { GameRepository } from "@/infrastructure/database/Memory/repositories/Game.repository"
+import { PlayerRepository } from "@/infrastructure/database/Memory/repositories/Player.repository"
 import { RoomRepository } from "@/infrastructure/database/Memory/repositories/Room.repository"
+import { UserRepository } from "@/infrastructure/database/Memory/repositories/GuestUser.repository"
 
-export const createRoom = (hostName: string) => {
+export const createRoom = (roomDTO: CreateRoomDTO) => {
 
-    const orm = new RoomRepository()
+    const roomOrm = new RoomRepository()
 
-    const room = new Room(hostName)
+    const userOrm = new UserRepository()
 
-    orm.save(room)
+    const playerOrm = new PlayerRepository()
 
-    console.log(hostName, room.id)
+    const gameOrm = new GameRepository()
+
+    const user = userOrm.getByID(roomDTO.userID)
+
+    const player = new Player(user.name, roomDTO.userID)
+
+    playerOrm.save(player)
+
+    const room = new Room(roomDTO.userID)
+
+    roomOrm.save(room)
+
+    const game = new Game(player.id!, roomDTO.rules, room.id)
+
+    gameOrm.save(game)
+
+    console.log(roomDTO.userID, room.id)
 
     return room.id
 

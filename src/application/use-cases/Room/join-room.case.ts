@@ -1,21 +1,58 @@
-import { JoinConfigDTO } from "@/application/dto/room.dto";
+import { JoinConfigDTO, JoinRoomDTO } from "@/application/dto/room.dto";
+import { Player } from "@/domain/entities/Player";
+import { GameRepository } from "@/infrastructure/database/Memory/repositories/Game.repository";
+import { PlayerRepository } from "@/infrastructure/database/Memory/repositories/Player.repository";
 import { RoomRepository } from "@/infrastructure/database/Memory/repositories/Room.repository";
+import { UserRepository } from "@/infrastructure/database/Memory/repositories/GuestUser.repository";
 
-export const joinRoom = (roomID: string, playerName: string) => {
+export const joinRoom = (dto: JoinRoomDTO) => {
 
-    const orm = new RoomRepository()
+    const roomOrm = new RoomRepository()
 
-    const room = orm.getByID(roomID)
+    const playerOrm = new PlayerRepository()
 
-    room.playerNames.set(room.playerNames.size, playerName) 
+    const gameOrm = new GameRepository()
 
-    const joinConfigDTO = {
-        host: room.host,
-        rules: Array.from(room.game.regras.entries()),
-        players: Array.from(room.playerNames.entries()),
-        gameRunnig: room.gameRunnig
+    const userOrm = new UserRepository()
+
+    const room = roomOrm.getByID(dto.roomID)
+
+    let player = playerOrm.getByUserID(dto.userID)
+
+    if (!player) {
+
+        const user = userOrm.getByID(dto.userID)
+
+        player = new Player(user.name, user.id)
+
+        player.id = playerOrm.save(player)
+
+    }
+
+    const identifier = player.id!
+
+    const game = gameOrm.getByRoomId(dto.roomID)
+
+    const players = gameOrm.getAllPlayersByRoomID(dto.roomID)
+
+    const playerRes: Players = []
+
+    let host: number = -1
+
+    for (let index = 0; index < players.length; index++) {
+     
+        if (room.hostID == players[index].userID)
+            host = players[index].id!;
+     
+        playerRes.push({ id: players[index].id!, name: players[index].name });
+
+    }
+
+    return {
+        host: host,
+        rules: Array.from(game.rules.entries()),
+        players: playerRes,
+        identifier: identifier
     } as JoinConfigDTO
-
-    return joinConfigDTO
 
 }

@@ -1,172 +1,52 @@
-import Player from "@/domain/entities/Player";
-import Carta from "@/domain/entities/Carta";
-import Baralho from "@/domain/entities/Baralho";
+import { Card } from "@/domain/entities/Card";
 import Habilidade from "@/domain/value-objects/Habilidade";
-import HabilidadeTroca from "@/domain/value-objects/HabilidadeTroca";
-import HabilidadeCompra from "@/domain/value-objects/HabilidadeCompra";
-import { estadoHab } from "@/infrastructure/shared/estadoHab";
 
-export class Game{
+export class Game {
+
+    id?: number
     
-    players:Player[] = []
+    playersId: number[] = []
 
-    pilha:Carta[] = []
-    descarte:Carta[] = []
-    pilhaCorte:corte[] = []
-    vez:number = 0;
+    stack: Card[] = []
+    discard: Card[] = []
+    stackCut: cut[] = []
+    turn: number = 0;
 
-    houveCorte:boolean = false;
-    playerComprou:boolean = false;
+    isCut: boolean = false;
+    playerBuy: boolean = false;
 
-    ordemPlayer:number = 1;
+    gameRunnig: boolean
 
-    habilidade:Habilidade | null = null;
+    orderPlayer: number = 1;
 
-    regras:Map<string, number> = new Map()
+    skill: Habilidade | null = null;
 
-    constructor(){
-        this.regras.set("as", 0)
-        this.regras.set("coringa", 0)
-        this.regras.set("tirar10", 0)
-        this.regras.set("7", 1)
-        this.regras.set("8", 1)
-        this.regras.set("9", 1)
-        this.regras.set("10", 1)
-        this.regras.set("Q", 1)
-        this.regras.set("J", 1)
-        this.regras.set("numCartas", 4)
-    }
+    rules: Map<string, number>
 
-    public start(listaPlayers:Map<number, string>){
+    roomId: string;
 
-        this.pilha = Baralho.criaBaralho(this.regras.get("coringa"));
+    constructor(hostPlayer: number, rules: GameRules, roomId: string) {
 
-        listaPlayers.forEach((nome, id)=>{
+        this.playersId.push(hostPlayer)
+        this.rules = new Map(rules)
+        this.roomId = roomId
+        this.gameRunnig = false
 
-            this.players[id] = new Player(nome)
-
-            for(let i = 0; i < this.regras.get("numCartas")!; i++)
-                this.players[id].receberCarta(this.pilha.pop()!)
-        })
-
-        
-        this.vez = Math.floor(Math.random() * Player.length)
-    }
-
-    public getUltimaDescarte(){
-        return this.descarte[this.descarte.length - 1]
-    }
-
-    public getUltimaPilha(){
-        return this.pilha[this.pilha.length - 1]
-    }
-
-    public comprarPilha(pN:number){
-
-        this.playerComprou = this.players[pN].comprar(this.pilha)
-    }
-    public comprarDescarte(pN:number){
-
-        this.playerComprou = this.players[pN].comprar(this.descarte)
-    }
-
-    public descartar(pN:number){
-
-        this.playerComprou = !this.players[pN].descartar(this.descarte)
-        this.houveCorte = false;
-
-        let carta = this.getUltimaDescarte();
-
-        if(this.habilidade && this.habilidade.playerID === pN && this.habilidade.id === carta.valor){
-            this.habilidade.estado = estadoHab.emUso;
-        }
-        else{
-            this.setHabilidade(carta.valor, pN)
-        }
-
-        if(!this.habilidade){
-            this.passarVez()
-        }
-        else{
-            
-        }
-    }
-
-    public cortar(pN:number, index:number){
-        let carta = structuredClone(this.players[pN].mao[index])
-        
-        this.pilhaCorte.push({pN:pN, pos:index, carta:carta, playerComprou:this.playerComprou})
-
-        this.players[pN].removerCarta(index)
+        this.rules.set("as", 0)
+        this.rules.set("coringa", 0)
+        this.rules.set("tirar10", 0)
+        this.rules.set("6", 0)
+        this.rules.set("7", 1)
+        this.rules.set("8", 1)
+        this.rules.set("9", 1)
+        this.rules.set("10", 1)
+        this.rules.set("Q", 1)
+        this.rules.set("J", 1)
+        this.rules.set("numCartas", 4)
 
     }
 
-    public computarCorte(){
-
-        let corte = this.pilhaCorte.shift()
-
-        if(!corte)
-            return;
-
-        let ultimaDescarte = this.getUltimaDescarte()
-        
-        console.log("carta Cortada", corte.carta)
-        console.log("playerComprou", corte.playerComprou)
-        console.log("houveCorte", this.houveCorte)
-
-        if(this.houveCorte || corte.playerComprou || ultimaDescarte===undefined || corte.carta.valor !== ultimaDescarte.valor){
-
-            let cartaPenal = this.pilha.pop()!
-            
-            this.players[corte.pN].errarCorte(corte.carta, corte.pos, cartaPenal)
-            
-        }
-        else{
-            this.descarte.push(corte.carta)
-            this.houveCorte = true;
-        }
-
-    }
-
-    pedidoStop(pN:number){
-        const player = this.players[pN];
-
-        if(pN !== this.vez || player.comprada.valor !== -1){
-            
-            let cartaPenal = this.pilha.pop()!
-            
-            player.receberCarta(cartaPenal)
-
-            return;
-        }
-
-        let pontuacao:number[] = []
-        
-        let ganhador = -1;
-        let menorP = 0xfffff0;
-        for(let i = 0; i < this.players.length; i++){
-
-            let pontos = this.players[i].calcularPontos();
-            pontuacao.push(this.players[i].calcularPontos())
-
-            if(pontos < menorP)
-                ganhador = i;
-        }
-
-        if(pontuacao[ganhador] === pontuacao[pN])
-            ganhador = pN;
-        
-        return {pontuacoes:pontuacao, ganhador:ganhador};
-    }
-
-    calcularPontos():number[]{
-        let pontuacao:number[] = []
-        for(let i = 0; i < this.players.length; i++){
-            pontuacao.push(this.players[i].calcularPontos())
-        }
-
-        return pontuacao;
-    }
+    /*
 
     setHabilidade(habilidadeID:number, playerID:number){
 
@@ -233,29 +113,6 @@ export class Game{
         }
     }
 
-    public trocarCarta(pN:number, index:number){
+    */
 
-        let carta = this.players[pN].trocarCarta(index)
-
-        this.descarte.push(new Carta(carta.valor, carta.naipe))
-
-        this.houveCorte = false;
-        this.playerComprou = false;
-        // console.log(this.players[pN].mao[index])
-        this.passarVez()
-    }
-
-
-    getCartasCorte(){
-        let cartas:Carta[] = [];
-
-        for(let i = 0; i < this.pilhaCorte.length; i++){
-            cartas.push(this.pilhaCorte[i].carta)
-        }
-
-        return cartas;
-    }
-    passarVez(){
-        this.vez = (this.vez + this.ordemPlayer) % this.players.length;
-    }
 }

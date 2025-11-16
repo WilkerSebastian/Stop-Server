@@ -1,4 +1,4 @@
-import { RoomRepository } from "@/infrastructure/database/Memory/repositories/Room.repository"
+/*import { RoomRepository } from "@/infrastructure/database/Memory/repositories/Room.repository"
 import { estadoHab } from "@/infrastructure/shared/estadoHab"
 
 export const sendSkill = (roomID: string, hab: any) => {
@@ -12,4 +12,4 @@ export const sendSkill = (roomID: string, hab: any) => {
 
     return room
 
-}
+}*/

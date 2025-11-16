@@ -1,13 +1,30 @@
-import { Room } from "@/domain/aggregates/Room"
-
 export interface JoinConfigDTO {
-    host: string
+    host: number
     rules: GameRules
-    players: [number, string][]
-    gameRunnig: boolean
+    players: Players
+    identifier: number
 }
 
-export interface GameStartDTO {
-    players: [number, string][]
-    room: Room
+export interface RoomDTO {
+    roomID: string
+}
+
+export interface JoinRoomDTO {
+    roomID: string,
+    userID: string
+}
+
+export interface CreateRoomDTO {
+    userID: string
+    password?: string
+    rules: GameRules
+    isPublic: boolean
+}
+
+export interface GameInitDTO { 
+    playersCards: { 
+        id: number, 
+        cards: {rank: number, suit: number}[] 
+    }[],  
+    turn: number 
 }

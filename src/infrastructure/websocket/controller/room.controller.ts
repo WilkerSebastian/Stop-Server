@@ -1,58 +1,43 @@
-import { JoinConfigDTO } from "@/application/dto/room.dto"
-import { configRoom } from "@/application/use-cases/Room/config-room.case"
-import { createRoom } from "@/application/use-cases/Room/create-room.case"
-import { gameStart } from "@/application/use-cases/Room/game-start.case"
+import { RoomDTO, JoinConfigDTO, JoinRoomDTO } from "@/application/dto/room.dto"
+import { dealFinish } from "@/application/use-cases/GamePlayer/deal-finish.case"
+import { gameInit } from "@/application/use-cases/Room/game-init.case"
 import { joinRoom } from "@/application/use-cases/Room/join-room.case"
-import { estadoSala } from "@/infrastructure/shared/estadoSala"
 import { SocketRouter, WsServer } from "@/infrastructure/websocket/WsServer"
 
 export const roomController =  {
 
-    criarSala: (socket: SocketRouter, hostName: string) => {
-        
-        const roomID = createRoom(hostName)
-
-        socket.emit('salaID', roomID)
-        
-    },
-
-    entrarSala: (socket: SocketRouter, roomID:string, playerName:string) => {
+    joinRoom: (socket: SocketRouter, dto: JoinRoomDTO) => {
 
         let joinConfig: JoinConfigDTO
 
         try {
             
-            joinConfig = joinRoom(roomID, playerName)
+            joinConfig = joinRoom(dto)
 
         } catch (e) {
             console.error(e);
             return
         }
 
-        socket.join(roomID)
+        socket.join(dto.roomID)
 
-        WsServer.io.to(roomID).emit("entrarSala", 
-            joinConfig.host,
-            joinConfig.rules, 
-            joinConfig.players,
-            joinConfig.gameRunnig
+        WsServer.io.to(dto.roomID).emit("joinRoom", 
+            joinConfig
         )
 
     },
 
-    configSala: (roomID:string, rules: GameRules) => {
+    gameStart: (dto: RoomDTO) => {
 
-        configRoom(roomID, rules)
+        WsServer.io.to(dto.roomID).emit("gameStart")       
 
     },
 
-    gameStart: (roomID: string) => {
+    gameInit: (dto: RoomDTO) => {
 
-        const gameStartInfo = gameStart(roomID)
+        const res = gameInit(dto)
 
-        WsServer.io.to(roomID).emit("gameStart", gameStartInfo.players, estadoSala.game)
-            
-        WsServer.updateGame(gameStartInfo.room)        
+        WsServer.io.to(dto.roomID).emit("gameInit", res)
 
     }
 

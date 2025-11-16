@@ -1,4 +1,4 @@
-import { Game } from "@/domain/entities/Game";
+/*import { Game } from "@/domain/entities/Game";
 import Habilidade from "@/domain/value-objects/Habilidade";
 
 export default class HabilidadeCompra extends Habilidade{
@@ -20,3 +20,4 @@ export default class HabilidadeCompra extends Habilidade{
         console.log(carta)
     }
 }
+*/
