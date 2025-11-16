@@ -1,5 +1,6 @@
 import express from 'express';
 import http from "http"
+import cors from "cors"
 import { config } from '@/config';
 import { errorHandlerMiddleware } from '@/infrastructure/http/middlewares/errorHandler.middleware';
 import { WsServer } from '@/infrastructure/websocket/WsServer';
@@ -24,6 +25,8 @@ export class Server {
     private config() {
 
         this._app.use(express.json());
+
+        this._app.use(cors())
 
         this._app.use("/", (req, res) => {res.send("teste")})
 
