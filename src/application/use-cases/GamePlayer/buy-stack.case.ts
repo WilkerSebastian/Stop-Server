@@ -1,15 +1,38 @@
-import { RoomRepository } from "@/infrastructure/database/Memory/repositories/Room.repository";
+import { PlayerActionDTO, PlayerCardDTO, PlayerCardResDTO } from "@/application/dto/game.dto";
+import { GameRepository } from "@/infrastructure/database/Memory/repositories/Game.repository";
+import { PlayerRepository } from "@/infrastructure/database/Memory/repositories/Player.repository";
 
-export const buyStack = (roomID: string, playerNumber: number) => {
+export const buyStack = (dto: PlayerActionDTO) => {
 
-    const orm = new RoomRepository()
+    const gameOrm = new GameRepository()
 
-    const room = orm.getByID(roomID);
+    const playerOrm = new PlayerRepository()
+
+    const game = gameOrm.getByPlayerID(dto.playerID);
                 
+    const player = playerOrm.getByID(dto.playerID)
+
     console.log("Comporar da pilha")
+
+    let card = game.stack.pop()
+
+    if (card) {
+        player.purchased = card;
+        game.playerBuy = true;
+    }
+
+    game.playerBuy = false;
+
+    gameOrm.save(game)
+
+    playerOrm.save(player)
+
+    return {
+        roomID: game.roomId,
+        res: {
+            identifier: player.id,
+            card: card
+        }
+    } as PlayerCardResDTO
     
-    room.game.comprarPilha(playerNumber);
-
-    return room;
-
 }

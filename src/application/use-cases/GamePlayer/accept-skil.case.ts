@@ -1,4 +1,4 @@
-import { SkillUseDTO } from "@/application/dto/skill.dto"
+/*import { SkillUseDTO } from "@/application/dto/skill.dto"
 import { RoomRepository } from "@/infrastructure/database/Memory/repositories/Room.repository"
 import { estadoHab } from "@/infrastructure/shared/estadoHab"
 
@@ -12,4 +12,4 @@ export const acceptSkill = (obj: SkillUseDTO) => {
 
     return room
 
-}
+}*/

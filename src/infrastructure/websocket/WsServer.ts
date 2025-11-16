@@ -1,7 +1,6 @@
 import http from "http"
 import { Server, Socket } from "socket.io";
 import type { ClientToServerEvents, InterServerEvents, ServerToClientEvents, SocketData } from "@/presentation/events/ServerEvents";
-import { Room } from "@/domain/aggregates/Room";
 import { gamePlayerRouter } from "./router/gamePlayer.router";
 import { roomRouter } from "./router/room.router";
 
@@ -19,22 +18,6 @@ export class WsServer {
                 cors: {origin:'*', methods:['GET', 'POST']}
             }
         )
-    }
-
-    public static updateGame(room: Room) {
-
-        const { game } = room;
-
-        this.io.to(room.id).emit(
-            "updateGame", 
-            game.players,
-            game.descarte, 
-            game.getCartasCorte(),
-            game.pilha.length,
-            game.vez,
-            game.habilidade
-        )
-
     }
 
     public static init() {

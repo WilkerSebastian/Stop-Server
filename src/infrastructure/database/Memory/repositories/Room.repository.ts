@@ -8,10 +8,18 @@ export class RoomRepository implements IRoomRepository {
 
     updateConfigByID(id: string, rules: GameRules) {
 
-        const room = this.getByID(id)
+        throw new Error("Preicsava desse código mesmo!");
 
-        room.setConfig(rules)
+        /*const room = this.getByID(id)
 
+        const mapRegras = new Map(regras)
+
+        this.game.regras = mapRegras;
+
+        console.log(mapRegras)
+
+        this.save(room)
+*/
     }
 
     getByID(id: string): Room {

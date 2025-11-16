@@ -1,46 +1,72 @@
+import { WebSocketErrorDTO } from "@/application/dto/error.dto";
+import { GameEndDTO, PassTurnDTO, PlayerActionDTO, PlayerCardDTO, PlayerIndexCardDTO, StopRequestDTO, WrongCutDTO, WrongStopDTO } from "@/application/dto/game.dto";
+import { RoomDTO, JoinConfigDTO, JoinRoomDTO, GameInitDTO } from "@/application/dto/room.dto";
 import { SkillUseDTO } from "@/application/dto/skill.dto";
-import type Carta from "@/domain/entities/Carta";
-import type Player from "@/domain/entities/Player";
-import { estadoSala } from "@/infrastructure/shared/estadoSala";
 
 export interface ServerToClientEvents {
-    salaID:(salaID:string) => void;
-    entrarSala:(hostName:string, regras:[string, number][], listaPlayers:[number, string][], gameRunnig:boolean)=>void;
-    gameStart:(listaPlayers:[number, string][], estado:estadoSala) => void;
-
-    updateGame:(players:Player[], 
-                descarte:Carta[], 
-                pilhaCorte:Carta[], 
-                nCartasPilha:number, 
-                vez:number, 
-                habilidade:{playerID:number,
-                            id:number,
-                            estado:number
-                } | null) => void;
     
+    roomID: (roomID: string) => void;
+
+    joinRoom: (dto: JoinConfigDTO) => void;
+
+    gameStart: () => void;
+
+    gameInit: (dto: GameInitDTO) => void
+
+    dealFinish: () => void
+
+    spyFinish: () => void
+
+    buyStack:(dto: PlayerCardDTO) => void;
+
+    buyDiscard: (dto: PlayerCardDTO) => void
+    
+    exchangeCard: (dto: PlayerIndexCardDTO) => void;
+
+    discard: () => void;
+
+    passTurn: (dto: PassTurnDTO) => void
+
+    wrongCut: (dto: WrongCutDTO) => void
+
+    successCut: (dto: PlayerIndexCardDTO) => void
+
+    wrongStop: (dto: WrongStopDTO) => void
+
+    gameEnd: (dto: GameEndDTO) => void
+
+    error: (dto: WebSocketErrorDTO) => void
+
     encerrarGame:(objStop:{pontuacoes:number[], ganhador:number}) => void;
-    // perguntarHabilidade:(playerID:number, habilidadeID:number) => void;
-    // aceitarHabilidade:(playerID:number) => void;
-    // aplicarHabilidade:(playerID:number) => void;
-    // encerrarHabilidade:(playerID:number) => void;
+
 }
 
 export interface ClientToServerEvents {
-    criarSala:(hostName:string) => void;
-    entrarSala:(salaID:string, playerName:string) => void;
-    configSala:(salaID:string, regras:[string, number][]) => void;
-
-    gameStart:(salaID:string) => void;
     
-    //Eventos de player
-    comprarPilha:(salaID:string, playerNumber:number) => void;
-    comprarDescarte:(salaID:string, playerNumber:number) => void;
-    trocarCarta:(salaID:string, playerNumber:number, indexCarta:number) => void;
-    cortar:(salaID:string, playerNumber:number, indexCarta:number) => void;
-    descartar:(salaID:string, playerNumber:number) => void;
-    stop:(obj:{salaID:string, playerID:number}) => void;
+    joinRoom: (dto: JoinRoomDTO) => void;
 
-    //Eventos habilidade
+    gameStart: (dto: RoomDTO) => void;
+
+    gameInit: (dto: RoomDTO) => void
+
+    dealFinish: (dto: RoomDTO) => void
+
+    spyFinish: (dto: RoomDTO) => void
+    
+    buyStack: (dto: PlayerActionDTO) => void;
+
+    buyDiscard: (dto: PlayerActionDTO) => void;
+
+    exchangeCard: (dto: PlayerIndexCardDTO) => void;
+
+    discard: (dto: RoomDTO) => void;
+
+    endTurn: (dto: RoomDTO) => void;
+
+    cut: (dto: PlayerIndexCardDTO) => void;
+    
+    stopRequest: (dto: StopRequestDTO) => void
+
     aceitarHabilidade:(obj: SkillUseDTO) => void;
     negarHabilidade:(obj: SkillUseDTO) => void;
     enviarHabilidade:(obj: SkillUseDTO, hab:any) => void;

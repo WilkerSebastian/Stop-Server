@@ -1,4 +1,4 @@
-import { Game } from "@/domain/entities/Game";
+/*import { Game } from "@/domain/entities/Game";
 import Habilidade from "@/domain/value-objects/Habilidade";
 
 export default class HabilidadeTroca extends Habilidade{
@@ -17,4 +17,4 @@ export default class HabilidadeTroca extends Habilidade{
         player1.receberCarta(carta2, hab.cartas[0])
         player2.receberCarta(carta1, hab.cartas[1])
     }
-}
+}*/

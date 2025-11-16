@@ -1,15 +1,38 @@
-import { RoomRepository } from "@/infrastructure/database/Memory/repositories/Room.repository";
+import { PlayerActionDTO, PlayerCardResDTO } from "@/application/dto/game.dto";
+import { GameRepository } from "@/infrastructure/database/Memory/repositories/Game.repository";
+import { PlayerRepository } from "@/infrastructure/database/Memory/repositories/Player.repository";
 
-export const buyDiscard = (roomID: string, playerNumber: number) => {
+export const buyDiscard = (dto: PlayerActionDTO) => {
 
-    const orm = new RoomRepository()
-    
-    const room = orm.getByID(roomID);
+    const gameOrm = new GameRepository()
+
+    const playerOrm = new PlayerRepository()
+
+    const game = gameOrm.getByPlayerID(dto.playerID);
+                
+    const player = playerOrm.getByID(dto.playerID)
                 
     console.log("Comporar do descare");
-    
-    room.game.comprarDescarte(playerNumber);
 
-    return room;
+    let card = game.discard.pop()
+
+    if (card) {
+        player.purchased = card;
+        game.playerBuy = true;
+    }
+
+    game.playerBuy = false;
+
+    gameOrm.save(game)
+
+    playerOrm.save(player)
+
+    return {
+        roomID: game.roomId,
+        res: {
+            identifier: player.id,
+            card: card
+        }
+    } as PlayerCardResDTO
 
 }

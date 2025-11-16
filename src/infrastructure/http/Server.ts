@@ -1,9 +1,11 @@
 import express from 'express';
 import http from "http"
+import cors from "cors"
 import { config } from '@/config';
 import { errorHandlerMiddleware } from '@/infrastructure/http/middlewares/errorHandler.middleware';
-import { Multiplayer } from '@/infrastructure/websocket/Multiplayer';
 import { WsServer } from '@/infrastructure/websocket/WsServer';
+import { userRouter } from './routes/User.router';
+import { roomRouter } from './routes/Room.router';
 
 export class Server {
 
@@ -24,7 +26,13 @@ export class Server {
 
         this._app.use(express.json());
 
+        this._app.use(cors())
+
         this._app.use("/", (req, res) => {res.send("teste")})
+
+        this._app.use("/user", userRouter)
+
+        this._app.use("/room", roomRouter)
 
         this._app.use(errorHandlerMiddleware);
         
