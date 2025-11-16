@@ -28,7 +28,7 @@ export class Server {
 
         this._app.use(cors())
 
-        this._app.use("/", (req, res) => {res.send("teste")})
+        this._app.get("/", (req, res) => {res.send("teste")})
 
         this._app.use("/user", userRouter)
 
